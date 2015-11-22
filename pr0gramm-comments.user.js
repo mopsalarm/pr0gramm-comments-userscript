@@ -13,3 +13,4 @@ function injectScript(url) {
 
 injectScript("//mopsalarm.github.io/pr0gramm-comments-userscript/md5.js")
 injectScript("//mopsalarm.github.io/pr0gramm-comments-userscript/script.js");
+
