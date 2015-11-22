@@ -12,8 +12,8 @@ Das ganze kommt demnächst auch in meine [pr0gramm-App](https://mopsalarm.github
 
 Das Userscript ist hier zu finden: https://mopsalarm.github.io/pr0gramm-comments-userscript/pr0gramm-comments.user.js
 Zur Installation musst du das Skript im Chrome herunterladen, dann musst
-du auf die [Erweiterungen-Übersichtsseite](chrome://extensions) gehen und
-das Skript dort hineinziehen. Im Firefox wird Greasemonkey oder eine ähnliche
+du auf die Erweiterungen-Übersichtsseite gehen (schreibe in die URL Zeile: chrome://extensions)
+und das Skript dort hineinziehen. Im Firefox wird Greasemonkey oder eine ähnliche
 Erweiterung benötigt. Dort reicht anklicken des Links.
 
 ## Screenshot
