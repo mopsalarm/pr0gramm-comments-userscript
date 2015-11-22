@@ -11,5 +11,5 @@ function injectScript(url) {
   body[0].appendChild(scriptTag);
 }
 
-injectScript("http://localhost:8000/md5.js")
-injectScript("http://localhost:8000/script.js");
+injectScript("http://mopsalarm.github.io/pr0gramm-comments-userscript/md5.js")
+injectScript("http://mopsalarm.github.io/pr0gramm-comments-userscript/script.js");

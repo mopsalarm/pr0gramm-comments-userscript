@@ -1,40 +1,14 @@
-function memo(func) {
-  var EMPTY = [];
-  var result = EMPTY;
 
-  return function() {
-    if(result === EMPTY) {
-      result = func.call(arguments);
-    }
-
-    return result;
-  }
-}
-
-var getUserHash = memo(function() {
-  var dfd = jQuery.Deferred();
-  p.api.get("user.info", {}, function(userInfo) {
-    var hash = md5(userInfo.account.email);
-    dfd.resolve(hash);
-  });
-
-  return dfd.promise();
-});
-
-function setupCommentFavoriteScript() {
+function setupCommentFavoriteScript (userHash) {
   var FAVCACHE = {};
 
-  getUserHash()
-    .then(function (userHash) {
-      return CommentFavorites.list(userHash);
-    })
-    .then(function (comments) {
-      comments.forEach(function (c) {
-        FAVCACHE[c.id] = true;
-      });
-
-      updateAfterFavCacheChanged();
+  CommentFavorites.list(userHash).then(function (comments) {
+    comments.forEach(function (c) {
+      FAVCACHE[c.id] = true;
     });
+
+    updateAfterFavCacheChanged();
+  });
 
   jQuery("<style>").html("\
     .kfav-save { \
@@ -74,7 +48,7 @@ function setupCommentFavoriteScript() {
               <a href="#new/{c.item_id}:comment{c.id}"> <img src="{c.thumb}" class="comment-thumb"/> </a> \
               <div class="comment-content with-thumb"> {c.content.format()} </div> \
               <div class="comment-foot with-thumb"> <a href="#user/{c.name}" class="user um{c.mark}">{c.name}</a> \
-                <?js if( c.showScore ) {?> \
+                <?js if ( c.showScore ) {?> \
                   <span class="score" title="{c.up} up, {c.down} down">{"Punkt".inflect(c.score)}</span> \
                 <?js } else { ?> \
                   <span class="score-hidden" title="Score noch unsichtbar">●●●</span> \
@@ -104,12 +78,7 @@ function setupCommentFavoriteScript() {
     },
 
     load: function() {
-      getUserHash()
-        .then(function(userHash) {
-          return CommentFavorites.list(userHash);
-        })
-        .then(this.loaded.bind(this));
-
+      CommentFavorites.list(userHash).then(this.loaded.bind(this));
       return false;
     },
 
@@ -137,10 +106,24 @@ function setupCommentFavoriteScript() {
     $container.find(".comment-vote").append('<span class="pict kfav-save">*</span>');
   }
 
+  if (jQuery(".kfav-save").length === 0) {
+    // call once to setup already rendered comments
+    enhanceComments(jQuery("body"));
+  }
+
+  // there is a race-condition somewhere. because of that, sometimes
+  // the little hearts are not added. this is a workaround for that.
+  window.setTimeout(function() {
+    if (jQuery(".kfav-save").length === 0) {
+      // call once to setup already rendered comments
+      enhanceComments(jQuery("body"));
+    }
+  }, 1000);
+
   function updateAfterFavCacheChanged() {
     var selectors = [];
     for(var commentId in FAVCACHE) {
-      if(FAVCACHE[commentId]) {
+      if (FAVCACHE[commentId]) {
         selectors.push("#comment"+ commentId + " .kfav-save");
       }
     }
@@ -153,16 +136,12 @@ function setupCommentFavoriteScript() {
     FAVCACHE[commentId] = false;
     updateAfterFavCacheChanged();
 
-    return getUserHash().then(function (userHash) {
-      return CommentFavorites.delete(userHash, commentId);
-    });
+    return CommentFavorites.delete(userHash, commentId);
   }
-
-  enhanceComments(jQuery("body"));
 
   jQuery("body").on("click", ".kfav-save", function (event) {
     var commentId = parseInt(jQuery(this).closest(".comment").attr("id").substr(7));
-    if(FAVCACHE[commentId]) {
+    if (FAVCACHE[commentId]) {
       deleteCommentFavorite(commentId);
     } else {
       FAVCACHE[commentId] = true;
@@ -173,17 +152,15 @@ function setupCommentFavoriteScript() {
         .filter(function (comment) { return comment.id === commentId; })
         .first();
 
-      getUserHash().then(function (userHash) {
-        return CommentFavorites.put(userHash, item.id, {
-          id: comment.id,
-          created: comment.created,
-          name: comment.name,
-          content: comment.content,
-          up: comment.up,
-          down: comment.down,
-          mark: comment.mark,
-          thumb: item.thumb
-        });
+      return CommentFavorites.put(userHash, item.id, {
+        id: comment.id,
+        created: comment.created,
+        name: comment.name,
+        content: comment.content,
+        up: comment.up,
+        down: comment.down,
+        mark: comment.mark,
+        thumb: item.thumb
       });
     };
   });
@@ -224,4 +201,9 @@ var CommentFavorites = {
   }
 };
 
-jQuery(setupCommentFavoriteScript);
+jQuery(function() {
+  p.api.get("user.info", {}, function(userInfo) {
+    var userHash = md5(userInfo.account.email);
+    setupCommentFavoriteScript(userHash);
+  });
+});
