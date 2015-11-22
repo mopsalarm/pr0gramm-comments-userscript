@@ -11,5 +11,5 @@ function injectScript(url) {
   body[0].appendChild(scriptTag);
 }
 
-injectScript("http://mopsalarm.github.io/pr0gramm-comments-userscript/md5.js")
-injectScript("http://mopsalarm.github.io/pr0gramm-comments-userscript/script.js");
+injectScript("//mopsalarm.github.io/pr0gramm-comments-userscript/md5.js")
+injectScript("//mopsalarm.github.io/pr0gramm-comments-userscript/script.js");
