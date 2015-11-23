@@ -179,7 +179,7 @@ var CommentFavorites = {
   list: function(user_hash) {
     return jQuery.ajax({
         method: "GET",
-        url: "http://pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash)
+        url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash)
     });
   },
 
@@ -187,7 +187,7 @@ var CommentFavorites = {
     var body = jQuery.extend({}, comment, {item_id: item_id});
     return jQuery.ajax({
       method: "POST",
-      url: "http://pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash),
+      url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash),
       contentType: "application/json",
       data: JSON.stringify(body)
     });
@@ -196,7 +196,7 @@ var CommentFavorites = {
   delete: function(user_hash, comment_id) {
     return jQuery.ajax({
       method: "POST",
-      url: "http://pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash) + "/" + encodeURIComponent(comment_id) + "/delete"
+      url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash) + "/" + encodeURIComponent(comment_id) + "/delete"
     });
   }
 };
