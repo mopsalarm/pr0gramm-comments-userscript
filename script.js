@@ -95,12 +95,17 @@ function setupCommentFavoriteScript (userHash) {
     }
   });
 
-  p.View.Stream.Comments = p.View.Stream.Comments.extend({
+  // patch the Stream.Comments view.
+  var NewCommentsClass = p.View.Stream.Comments.extend({
     render: function() {
       this.parent();
       enhanceComments(this.$container);
     }
   });
+
+  NewCommentsClass.SortTime = p.View.Stream.Comments.SortTime;
+  NewCommentsClass.SortConfidenceTime = p.View.Stream.Comments.SortConfidenceTime;
+  p.View.Stream.Comments = NewCommentsClass;
 
   function enhanceComments($container) {
     $container.find(".comment-vote").append('<span class="pict kfav-save">*</span>');
