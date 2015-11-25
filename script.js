@@ -1,8 +1,9 @@
 
 function setupCommentFavoriteScript (userHash) {
   var FAVCACHE = {};
+  var ALL = 7;
 
-  CommentFavorites.list(userHash).then(function (comments) {
+  CommentFavorites.list(userHash, ALL).then(function (comments) {
     comments.forEach(function (c) {
       FAVCACHE[c.id] = true;
     });
@@ -78,7 +79,8 @@ function setupCommentFavoriteScript (userHash) {
     },
 
     load: function() {
-      CommentFavorites.list(userHash).then(this.loaded.bind(this));
+      var flags = p.user && p.user.flags;
+      CommentFavorites.list(userHash, flags).then(this.loaded.bind(this));
       return false;
     },
 
@@ -165,7 +167,8 @@ function setupCommentFavoriteScript (userHash) {
         up: comment.up,
         down: comment.down,
         mark: comment.mark,
-        thumb: item.thumb
+        thumb: item.thumb,
+        flags: item.flags
       });
     };
   });
@@ -181,10 +184,11 @@ function setupCommentFavoriteScript (userHash) {
 };
 
 var CommentFavorites = {
-  list: function(user_hash) {
+  list: function(user_hash, flags) {
     return jQuery.ajax({
         method: "GET",
-        url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash)
+        url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash),
+        data: {flags: flags || 1}
     });
   },
 
