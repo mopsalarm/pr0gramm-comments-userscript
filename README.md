@@ -12,12 +12,7 @@ Das ganze ist aktuell bereits in der Beta-Version meiner [pr0gramm-App](https://
 
 Das Userscript ist hier zu finden: https://mopsalarm.github.io/pr0gramm-comments-userscript/pr0gramm-comments.user.js.
 
-Du benötigst ein UserScript Addon für deinen Browser. Ich habe das Skript im Chrome mit Tampermonkey, im Firefox mit Greasemonkey und im Opera mit ViolentMonkey ausprobiert. Hast du die Erweiterung installiert, kannst du einfach den obrigen Link anklicken.
-
-Zur Installation musst du das Skript im Chrome herunterladen, dann musst
-du auf die Erweiterungen-Übersichtsseite gehen (schreibe in die URL Zeile: chrome://extensions)
-und das Skript dort hineinziehen. Im Firefox wird Greasemonkey oder eine ähnliche
-Erweiterung benötigt. Dort reicht anklicken des Links.
+Du benötigst ein UserScript Addon für deinen Browser. Ich habe das Skript im Chrome mit [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=de), im Firefox mit [Greasemonkey](https://addons.mozilla.org/en-us/firefox/addon/greasemonkey/) und im Opera mit [Violent monkey](https://addons.opera.com/en/extensions/details/violent-monkey/) ausprobiert. Hast du die Erweiterung installiert, kannst du einfach den obrigen Link zum [UserScript](https://mopsalarm.github.io/pr0gramm-comments-userscript/pr0gramm-comments.user.js) anklicken.
 
 ## Screenshot
 ![Screenshot](screenshot.png)
