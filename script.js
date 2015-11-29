@@ -1,3 +1,16 @@
+// ==UserScript==
+// @name         pr0gramm-comments
+// @namespace    http://pr0gramm.com/user/Mopsalarm
+// @version      1.0.18
+// @description  Adds a function to favorite comments
+// @author       Mopsalarm
+// @match        http://pr0gramm.com/*
+// @match        https://pr0gramm.com/*
+// @grant        none
+// @require      http://localhost:9080/md5.js?1
+// @require      http://localhost:9080/pr0gramm-commons.js?2
+// @run-at       document-end
+// ==/UserScript==
 
 function setupCommentFavoriteScript (userHash) {
   var FAVCACHE = {};
@@ -27,43 +40,44 @@ function setupCommentFavoriteScript (userHash) {
 
   var $favStyle = jQuery("<style>").appendTo("body");
 
-  var link = jQuery("<a id='tab-kfav' class='head-tab' href='#favorisierte-kommentare'>k-fav</a>");
+  var link = jQuery("<a id='tab-kfav-old' class='head-tab' href='#OLD_favorisierte-kommentare'>k-fav</a>");
   jQuery("#filter-link").before(link);
 
   // integrate the k-fav link into the pr0gramm navigation code
-  var link = jQuery("#tab-kfav");
+  var link = jQuery("#tab-kfav-old");
   if (p._hasPushState) {
-      link.each(function() {
-          this.href = '/' + $(this).attr('href').substr(1);
-      });
+    link.each(function() {
+      this.href = '/' + $(this).attr('href').substr(1);
+    });
   }
   link.fastclick(p.mainView.handleHashLink.bind(p.mainView));
 
-  var View = p.View.Base.extend({
-    data: { comments: [] },
-    template: '\
-      <h1><h1 class="pane-head user-head"> Favorisierte Kommentare</a> </h1> \
-      <div class="pane"> \
-          <?js for(var i = 0; i < comments.length; i++) { var c = comments[i]; ?> \
-             <div class="comment"> \
-              <a href="#new/{c.item_id}:comment{c.id}"> <img src="{c.thumb}" class="comment-thumb"/> </a> \
-              <div class="comment-content with-thumb"> {c.content.format()} </div> \
-              <div class="comment-foot with-thumb"> <a href="#user/{c.name}" class="user um{c.mark}">{c.name}</a> \
-                <?js if ( c.showScore ) {?> \
-                  <span class="score" title="{c.up} up, {c.down} down">{"Punkt".inflect(c.score)}</span> \
-                <?js } else { ?> \
-                  <span class="score-hidden" title="Score noch unsichtbar">●●●</span> \
-                <?js } ?> \
-                <a href="#new/{c.item_id}:comment{c.id}" class="time permalink" title="{c.created.readableTime()}">{c.created.relativeTime(true)}</a> \
-                <a data-comment-id="{c.id}" class="kfav-delete">entfernen</a> \
+  pu.addRoute('OLD_favorisierte-kommentare', p.View.Base.extend({
+      data: { comments: [] },
+      template: '\
+        <h1><h1 class="pane-head user-head"> Favorisierte Kommentare</a> </h1> \
+        <div class="pane"> \
+          <strong>Hinweis:</strong> <a href="https://github.com/mopsalarm/pr0gramm-comments-userscript/blob/gh-pages/README.md#kommentare-favorisieren">Bitte updaten</a>. \
+          Das Skript ist jetzt als richtiges UserScript sauber und Browser unabhängig worden. \
+          Um es zu nutzen benötigst du nun jedoch die Tampermonkey/Greasemonkey Erweiterung. \
+          Mehr Informationen findest du <a href="https://github.com/mopsalarm/pr0gramm-comments-userscript/blob/gh-pages/README.md#kommentare-favorisieren">hier</a>. \
+        </div> \
+        <div class="pane"> \
+            <?js for(var i = 0; i < comments.length; i++) { var c = comments[i]; ?> \
+               <div class="comment"> \
+                <a href="#new/{c.item_id}:comment{c.id}"> <img src="{c.thumb}" class="comment-thumb"/> </a> \
+                <div class="comment-content with-thumb"> {c.content.format()} </div> \
+                <div class="comment-foot with-thumb"> <a href="#user/{c.name}" class="user um{c.mark}">{c.name}</a> \
+                  <a href="#new/{c.item_id}:comment{c.id}" class="time permalink" title="{c.created.readableTime()}">{c.created.relativeTime(true)}</a> \
+                  <a data-comment-id="{c.id}" class="kfav-delete">entfernen</a> \
+                </div> \
               </div> \
-            </div> \
-          <?js } ?> \
-      </div>',
+            <?js } ?> \
+        </div>',
 
-    init: function(container, parent) {
+      init: function(container, parent) {
         this.parent(container, parent);
-        p.mainView.setTab("kfav");
+        p.mainView.setTab("kfav-old");
 
         var view = this;
         this.$container.on("click", ".kfav-delete", function () {
@@ -76,26 +90,37 @@ function setupCommentFavoriteScript (userHash) {
 
           view.render();
         });
-    },
+      },
 
-    load: function() {
-      var flags = p.user && p.user.flags;
-      CommentFavorites.list(userHash, flags).then(this.loaded.bind(this));
-      return false;
-    },
+      load: function() {
+        var flags = p.user && p.user.flags;
+        CommentFavorites.list(userHash, flags)
+          .then(this.loaded.bind(this))
+          .fail(function() {
+            if(location.protocol == "https:") {
+              this.comments = [];
+              this.render();
 
-    loaded: function(comments) {
-      this.data.comments = comments;
-      this.data.comments.forEach(function (c) {
-        c.showScore = (parseInt(c.created) + CONFIG.COMMENT_SHOW_SCORE_AGE < Date.now() / 1000);
-        c.created = new Date(c.created * 1000);
-        c.thumb = c.thumb.match(/^\/\//) ? c.thumb : CONFIG.PATH.THUMBS + c.thumb;
-        c.score = c.up - c.down;
-      });
+              alert("Liste der Favoriten konnte nicht abgerufen werden. Vielleicht liegt es an HTTPS. Ich hoffe, dass das mit dem Start der public beta von 'Let's Encrypt' der Vergangenheit angehört.");
+            }
+          }.bind(this));
 
-      this.render();
-    }
-  });
+        return false;
+      },
+
+      loaded: function(comments) {
+        this.data.comments = comments;
+        this.data.comments.forEach(function (c) {
+          c.showScore = (parseInt(c.created) + CONFIG.COMMENT_SHOW_SCORE_AGE < Date.now() / 1000);
+          c.created = new Date(c.created * 1000);
+          c.thumb = c.thumb.match(/^\/\//) ? c.thumb : CONFIG.PATH.THUMBS + c.thumb;
+          c.score = c.up - c.down;
+        });
+
+        this.render();
+      }
+    })
+  );
 
   // patch the Stream.Comments view.
   var NewCommentsClass = p.View.Stream.Comments.extend({
@@ -172,15 +197,6 @@ function setupCommentFavoriteScript (userHash) {
       });
     };
   });
-
-  p.addRoute(View, 'favorisierte-kommentare');
-  var tmpRoute = p._routes[p._routes.length-2];
-  p._routes[p._routes.length-2] = p._routes[p._routes.length-1];
-  p._routes[p._routes.length-1] = tmpRoute;
-
-  if (p.getURL() === "favorisierte-kommentare") {
-    p.navigateTo("favorisierte-kommentare", p.NAVIGATE.FORCE);
-  }
 };
 
 var CommentFavorites = {
@@ -209,6 +225,19 @@ var CommentFavorites = {
     });
   }
 };
+
+var pu = {
+  addRoute: function(path, view) {
+    p.addRoute(view, path);
+    var tmpRoute = p._routes[p._routes.length-2];
+    p._routes[p._routes.length-2] = p._routes[p._routes.length-1];
+    p._routes[p._routes.length-1] = tmpRoute;
+
+    if (p.getURL() === path) {
+      p.navigateTo(path, p.NAVIGATE.FORCE);
+    }
+  }
+}
 
 jQuery(function() {
   p.api.get("user.info", {}, function(userInfo) {
