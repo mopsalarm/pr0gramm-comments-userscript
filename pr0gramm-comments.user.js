@@ -7,8 +7,8 @@
 // @match        http://pr0gramm.com/*
 // @match        https://pr0gramm.com/*
 // @grant        none
-// @require      http://localhost:9080/md5.js?1
-// @require      http://localhost:9080/pr0gramm-commons.js?2
+// @require      https://mopsalarm.github.io/pr0gramm-comments-userscript/md5.js?1
+// @require      https://mopsalarm.github.io/pr0gramm-comments-userscript/pr0gramm-commons.js?2
 // @run-at       document-end
 // ==/UserScript==
 
