@@ -6,7 +6,7 @@ Liste der Kommentare mithilfe eines Hashes deiner im pr0gramm angegebenen
 E-Mail-Addresse. Durch die Verwendung eines Hashwertes kann **nicht** zugeordnet
 werden, welcher User einen Kommentar favorisiert hat - es ist somit sicher.
 
-Das ganze ist aktuell bereits in der Beta-Version meiner [pr0gramm-App](https://mopsalarm.github.io/Pr0) zu finden. Die Favoriten sind somit zwischen Browser und App synchronisiert!
+Das ganze ist aktuell bereits in der aktuellen Version meiner [pr0gramm-App](https://mopsalarm.github.io/Pr0) zu finden. Die Favoriten sind somit zwischen Browser und App synchronisiert!
 
 ## Installation
 
