@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         pr0gramm-comments
 // @namespace    http://pr0gramm.com/user/Mopsalarm
-// @version      1.0.18
+// @version      1.1.0
 // @description  Adds a function to favorite comments
 // @author       Mopsalarm
 // @match        http://pr0gramm.com/*
@@ -12,11 +12,11 @@
 // @run-at       document-end
 // ==/UserScript==
 
-function setupCommentFavoriteScript (userHash) {
+function setupCommentFavoriteScript (token) {
   var FAVCACHE = {};
   var ALL = 7;
 
-  CommentFavorites.list(userHash, ALL).then(function (comments) {
+  CommentFavorites.list(token, ALL).then(function (comments) {
     comments.forEach(function (c) {
       FAVCACHE[c.id] = true;
     });
@@ -88,7 +88,7 @@ function setupCommentFavoriteScript (userHash) {
 
       load: function() {
         var flags = p.user && p.user.flags;
-        CommentFavorites.list(userHash, flags)
+        CommentFavorites.list(token, flags)
           .then(this.loaded.bind(this))
           .fail(function() {
             if(location.protocol == "https:") {
@@ -162,7 +162,7 @@ function setupCommentFavoriteScript (userHash) {
     FAVCACHE[commentId] = false;
     updateAfterFavCacheChanged();
 
-    return CommentFavorites.delete(userHash, commentId);
+    return CommentFavorites.delete(token, commentId);
   }
 
   jQuery("body").on("click", ".kfav-save", function (event) {
@@ -178,7 +178,7 @@ function setupCommentFavoriteScript (userHash) {
         .filter(function (comment) { return comment.id === commentId; })
         .first();
 
-      return CommentFavorites.put(userHash, item.id, {
+      return CommentFavorites.put(token, item.id, {
         id: comment.id,
         created: comment.created,
         name: comment.name,
@@ -194,35 +194,50 @@ function setupCommentFavoriteScript (userHash) {
 };
 
 var CommentFavorites = {
-  list: function(user_hash, flags) {
+  list: function(userToken, flags) {
     return jQuery.ajax({
         method: "GET",
-        url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash),
+        url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(userToken),
         data: {flags: flags || 1}
     });
   },
 
-  put: function(user_hash, item_id, comment) {
+  put: function(userToken, item_id, comment) {
     var body = jQuery.extend({}, comment, {item_id: item_id});
     return jQuery.ajax({
       method: "POST",
-      url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash),
+      url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(userToken),
       contentType: "application/json",
       data: JSON.stringify(body)
     });
   },
 
-  delete: function(user_hash, comment_id) {
+  delete: function(userToken, comment_id) {
     return jQuery.ajax({
       method: "POST",
-      url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(user_hash) + "/" + encodeURIComponent(comment_id) + "/delete"
+      url: "//pr0.wibbly-wobbly.de/api/comments/v1/" + encodeURIComponent(userToken) + "/" + encodeURIComponent(comment_id) + "/delete"
     });
   }
 };
 
 jQuery(function() {
-  p.api.get("user.info", {}, function(userInfo) {
-    var userHash = md5(userInfo.account.email);
-    setupCommentFavoriteScript(userHash);
+  p.api.get("user.identifier", {}, function(userId) {
+    var token = userId.identifier;
+
+    if(localStorage.getItem("pr0gramm-comments.migrated") !== token) {
+      p.api.get("user.info", {}, function(userInfo) {
+        var userHash = md5(userInfo.account.email);
+        jQuery.ajax({
+          method: "POST",
+          url: "//pr0.wibbly-wobbly.de/api/comments/v1/migrate?from=" + encodeURIComponent(userHash) + "&to=" + encodeURIComponent(token),
+          success: function() {
+            // migrated
+            localStorage.setItem("pr0gramm-comments.migrated", token);
+          }
+        });
+      });
+    }
+
+    setupCommentFavoriteScript(token);
   });
 });
