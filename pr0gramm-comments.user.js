@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         pr0gramm-comments
 // @namespace    http://pr0gramm.com/user/Mopsalarm
-// @version      1.1.0
+// @version      1.1.1
 // @description  Adds a function to favorite comments
 // @author       Mopsalarm
 // @match        http://pr0gramm.com/*
@@ -50,7 +50,8 @@ function setupCommentFavoriteScript (token) {
       this.href = '/' + $(this).attr('href').substr(1);
     });
   }
-  link.fastclick(p.mainView.handleHashLink.bind(p.mainView));
+
+  link.click(p.mainView.handleHashLink.bind(p.mainView));
 
   pu.addRoute('favorisierte-kommentare', p.View.Base.extend({
       data: { comments: [] },
